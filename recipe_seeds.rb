@@ -1,5 +1,12 @@
 require 'sqlite3'
 
+def load_recipes_db(recipes_db, recipes)
+	recipes.each do |recipe|
+		recipes_db.execute("INSERT INTO recipes (name, source, type, cook_time_hr, diet_vegan) 
+			VALUES (?, ?, ?, ?, ?)", recipe)
+	end
+end
+
 recipes_db = SQLite3::Database.new("recipes.db")
 recipes_db.results_as_hash = true
 
@@ -9,30 +16,71 @@ create_recipe_table_cmd = <<-SQL
     name VARCHAR(255),
     source VARCHAR(255),
     type VARCHAR(255),
-    season VARCHAR(255),
     cook_time_hr REAL,
-    preprep VARCHAR(255),
-    tips VARCHAR(255),
-    diet_vegan BOOLEAN,
-    diet_vegetarian BOOLEAN,
-    diet_paleo BOOLEAN,
-    diet_gluten_free BOOLEAN,
-    diet_grain_free BOOLEAN
+    diet_vegan BOOLEAN
   )
 SQL
 
 recipes_db.execute(create_recipe_table_cmd)
 
-# chickpea_curry = {
-# 	"name" => "Slow-Cooker Vegetable Chickpea Curry",
-# 	"source" => "MyRecipes",
-# 	"type" => "Entree",
-#     "cook_time_hr" => 6.5,
-#     "preprep" => ,
-#     tips VARCHAR(255),
-#     diet_vegan BOOLEAN,
-#     diet_vegetarian BOOLEAN,
-#     diet_paleo BOOLEAN,
-#     diet_gluten_free BOOLEAN,
-#     diet_grain_free BOOLEAN
-# }
+recipes = [
+
+	[
+		"Slow-Cooker Vegetable Chickpea Curry",
+		"MyRecipes",
+		"Entree",
+	    "6.5",
+	    "true"
+	],
+
+	[
+		"No-Cream Pasta Primavera",
+		"AllRecipes",
+		"Entree",
+	    "1",
+	    "false"
+	],
+
+	[
+		"Tomato and Sausage Risotto",
+		"Smitten Kitchen",
+		"Entree",
+	    "1",
+	    "false"
+	],
+
+	[
+		"Lentil Quinoa Salad",
+		"Food Network",
+		"Salad",
+	    "0.75",
+	    "true"
+	],
+
+	[
+		"Slow-Cooker Sweet Potato and Lentil Soup",
+		"Food Network",
+		"Soup",
+	    "8.5",
+	    "true"
+	],
+
+	[
+		"Almost Flourless Chocolate Cake",
+		"Food52",
+		"Dessert",
+	    "1",
+	    "false"
+	],
+
+	[
+		"Slow-Baked Broccoli Frittata",
+		"Food52",
+		"Breakfast",
+	    "1",
+	    "false"
+	]
+
+]
+
+load_recipes_db(recipes_db, recipes)
