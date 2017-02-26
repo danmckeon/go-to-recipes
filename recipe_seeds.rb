@@ -23,6 +23,7 @@ SQL
 
 recipes_db.execute(create_recipe_table_cmd)
 
+
 recipes = [
 
 	[
