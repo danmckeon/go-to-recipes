@@ -85,10 +85,12 @@ def get_all_recipes(recipes_db)
 	filtered_recipes_arr
 end
 
+def get_ingredients_for_recipe(recipes_db, recipe_choice_input)
+	ingredients_hash = recipes_db.execute("SELECT * FROM ingredients WHERE recipe_id = ?", recipe_choice_input)
+end
+
 recipes_db = SQLite3::Database.new("recipes.db")
 recipes_db.results_as_hash = true
-
-valid_filter = false
 
 filtered_recipes_arr = []
 
@@ -135,4 +137,27 @@ else
 	recipe_choice_hash = recipes_db.execute("SELECT * FROM recipes WHERE id = ?", recipe_choice_input)
 	recipe_choice_str = recipe_choice_hash[0]["name"]
 	puts "Ingredient List for #{recipe_choice_str}: "
+	ingredients_hash = get_ingredients_for_recipe(recipes_db, recipe_choice_input)
+	
 end
+
+# ingredients_hash1 = get_ingredients_for_recipe(recipes_db, 1)
+# ingredients_hash3 = get_ingredients_for_recipe(recipes_db, 3)
+
+# total_ingredients = ingredients_hash1[0].merge(ingredients_hash3[0]) {|ingredient, qty1, qty2| qty1 + qty2}
+
+
+# puts "Chickpea Curry Ingredients: "
+# ingredients_hash1[0].each do |key, value|
+# 		puts "#{key}: #{value}"
+# end
+
+# puts "Tomato and Sausage Risotto Ingredients: "
+# ingredients_hash3[0].each do |key, value|
+# 		puts "#{key}: #{value}"
+# end
+
+# puts "Combined Ingredients: "
+# total_ingredients.each do |key, value|
+# 		puts "#{key}: #{value}"
+# end
