@@ -105,7 +105,7 @@ end
 recipes_db = SQLite3::Database.new("recipes.db")
 recipes_db.results_as_hash = true
 
-
+recipe_choices = []
 shopping_list = {}
 another_recipe = "y"
 
@@ -163,7 +163,7 @@ while another_recipe == "y" || another_recipe == "Y"
 		end
 		if filtered_recipes_arr.include? recipe_choice_input
 			recipe_choice_hash = recipes_db.execute("SELECT * FROM recipes WHERE id = ?", recipe_choice_input)[0]
-			recipe_choice_str = recipe_choice_hash["name"]
+			recipe_choices << recipe_choice_hash["name"]
 
 			ingredients_hash = get_ingredients_for_recipe(recipes_db, recipe_choice_input)
 
@@ -184,32 +184,12 @@ puts "##########################################################################
 puts "                              Final Shopping List                              "
 puts "###############################################################################"
 						                      
+puts "\nYou selected the following recipes: \n\n"
 
+recipe_choices.each { |recipe| puts recipe }
 
+puts "\nYou need to buy the following ingredients:\n\n"
 
 shopping_list.each do |key, value|
 	puts "#{key}: #{value}"
 end	
-
-# SAMPLE CODE FOR ADDING HASHES
-
-# ingredients_hash1 = get_ingredients_for_recipe(recipes_db, 1)[0]
-# ingredients_hash3 = get_ingredients_for_recipe(recipes_db, 3)[0]
-
-# total_ingredients = ingredients_hash1.merge(ingredients_hash3) {|ingredient, qty1, qty2| qty1 + qty2}
-
-
-# puts "Chickpea Curry Ingredients: "
-# ingredients_hash1.each do |key, value|
-# 		puts "#{key}: #{value}"
-# end
-
-# puts "Tomato and Sausage Risotto Ingredients: "
-# ingredients_hash3.each do |key, value|
-# 		puts "#{key}: #{value}"
-# end
-
-# puts "Combined Ingredients: "
-# total_ingredients.each do |key, value|
-# 		puts "#{key}: #{value}"
-# end

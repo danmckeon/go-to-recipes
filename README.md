@@ -3,11 +3,7 @@
 
 # Description
 
-We recently learned how Ruby can interact with SQL databases and this app is meant to be an exploration of this functionality. I put a few of my favorite recipes on here and the app is meant to easily create a grocery list for each recipe. Users are able to access database items.
-
-...EDIT?
-...ADD?
-...DELETE?
+This week at Dev Bootcamp, we learned how Ruby can interact with SQL databases. This app is meant to be an exploration of that functionality. I seeded the database with a few of my favorite recipes. Users can access one or multiple recipes and the app will generate a single grocery list that encapsulates all the recipes.
 
 # Instructions
 
