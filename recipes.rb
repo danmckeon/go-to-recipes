@@ -65,15 +65,14 @@ end
 
 def get_recipes_by_cook_time(recipes_db, cook_time)
 	filtered_recipes_arr = []
-	recipes_db.execute("SELECT * FROM recipes WHERE cook_time_hr < ?", cook_time) do |recipe|
+	recipes_db.execute("SELECT * FROM recipes WHERE cook_time_hr <= ?", cook_time) do |recipe|
 		filtered_recipes_arr << recipe["id"]
 	end
 
 	if filtered_recipes_arr.empty? 
+		puts "Please ensure cook time input is numerical and greater than or equal to 0.75"
+	end
 
-	end
-		
-	end
 	filtered_recipes_arr
 
 end
