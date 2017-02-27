@@ -55,6 +55,14 @@ def get_recipes_by_source(recipes_db, recipe_source_input)
 	filtered_recipes_arr
 end
 
+def get_vegan_recipes(recipes_db)
+	filtered_recipes_arr = []
+	recipes_db.execute("SELECT * FROM recipes WHERE diet_vegan='true'") do |recipe|
+		filtered_recipes_arr << recipe["id"]
+	end
+	filtered_recipes_arr
+end
+
 def get_all_recipes(recipes_db)
 	filtered_recipes_arr = []
 	recipes_db.execute("SELECT * FROM recipes") do |recipe|
@@ -71,7 +79,7 @@ valid_filter = false
 filtered_recipes_arr = []
 
 puts "Please choose a metric to filter recipes by: " 
-puts "t: type (entree, dessert, etc.)\ns: source (website/blog)\nv: vegan meals only\nc: cook time (you will enter max cook time next)\nn: no filter"
+puts "t: type (entree, dessert, etc.)\ns: source (website/blog)\nv: vegan recipes only\nc: cook time (you will enter max cook time next)\nn: no filter"
 
 user_filter = gets.chomp
 
@@ -84,7 +92,7 @@ elsif user_filter == "s" || user_filter == "S"
 	recipe_source_input = gets.chomp
 	filtered_recipes_arr = get_recipes_by_source(recipes_db, recipe_source_input)
 elsif user_filter == "v" || user_filter == "V"
-
+	filtered_recipes_arr = get_vegan_recipes(recipes_db)
 elsif user_filter == "c" || user_filter == "C"
 
 elsif user_filter == "n" || user_filter == "N"
