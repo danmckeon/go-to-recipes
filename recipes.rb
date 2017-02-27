@@ -3,7 +3,7 @@
 # 2) Show recipes
 # 3) User selects recipes
 # 4) Show ingredients
-# * Additional features: Multiple recipes selection, add a recipe, edit a recipe
+# * Additional features: Multiple recipes selection, add a recipe, edit a recipe, double recipe (and 50%, etc)
 
 require 'sqlite3'
 
@@ -86,74 +86,91 @@ def get_all_recipes(recipes_db)
 end
 
 def get_ingredients_for_recipe(recipes_db, recipe_choice_input)
-	ingredients_hash = recipes_db.execute("SELECT * FROM ingredients WHERE recipe_id = ?", recipe_choice_input)
+	ingredients_hash = recipes_db.execute("SELECT * FROM ingredients WHERE recipe_id = ?", recipe_choice_input)[0]
 end
 
 recipes_db = SQLite3::Database.new("recipes.db")
 recipes_db.results_as_hash = true
 
 filtered_recipes_arr = []
+shopping_list = {}
+another_recipe = "y"
 
-puts "Please choose a metric to filter recipes by: " 
-puts "t: type (entree, dessert, etc.)\ns: source (website/blog)\nv: vegan recipes only\nc: cook time (you will enter max cook time next)\nn: no filter"
+while another_recipe == "y" || another_recipe == "Y"
 
-user_filter = gets.chomp
+	puts "Please choose a metric to filter recipes by: " 
+	puts "t: type (entree, dessert, etc.)\ns: source (website/blog)\nv: vegan recipes only\nc: cook time (you will enter max cook time next)\nn: no filter"
 
-if user_filter == "t" || user_filter == "T"
-	puts "Please enter a recipe type: \nb: breakfast \ns: salad \np: soup \ne: entree \nd: dessert"
-	recipe_type_input = gets.chomp
-	filtered_recipes_arr = get_recipes_by_type(recipes_db, recipe_type_input)
-elsif user_filter == "s" || user_filter == "S"
-	puts "Please enter preferred source: \na: allrecipes \nf:food network \n52: food52 \nm: myrecipes \ns: smitten kitchen"
-	recipe_source_input = gets.chomp
-	filtered_recipes_arr = get_recipes_by_source(recipes_db, recipe_source_input)
-elsif user_filter == "v" || user_filter == "V"
-	filtered_recipes_arr = get_vegan_recipes(recipes_db)
-elsif user_filter == "c" || user_filter == "C"
-	puts "Please enter maximum cook time in hours (input must be 0.75 or greater): "
-	cook_time = gets.chomp.to_i
-	filtered_recipes_arr = get_recipes_by_cook_time(recipes_db, cook_time)
-elsif user_filter == "n" || user_filter == "N"
-	filtered_recipes_arr = get_all_recipes(recipes_db)
-else
-	puts "Please ensure input is one of the following: t, s, v, c ,n"
-end
+	user_filter = gets.chomp
 
-if filtered_recipes_arr.empty?
-	puts "Please try another query, ensuring input is valid"
-else
-	if filtered_recipes_arr.length > 1
-		puts "Please select a recipe from the list below with numerical input for which you would like to generate the ingredient list: "
-		filtered_recipes_arr.each do |recipe_id|
-			recipes_db.execute("SELECT * FROM recipes WHERE id = ?", recipe_id) do |recipe|
-				puts "#{recipe["id"]}: #{recipe["name"]}"
-			end
-		end
-		recipe_choice_input = gets.chomp
+	if user_filter == "t" || user_filter == "T"
+		puts "Please enter a recipe type: \nb: breakfast \ns: salad \np: soup \ne: entree \nd: dessert"
+		recipe_type_input = gets.chomp
+		filtered_recipes_arr = get_recipes_by_type(recipes_db, recipe_type_input)
+	elsif user_filter == "s" || user_filter == "S"
+		puts "Please enter preferred source: \na: allrecipes \nf:food network \n52: food52 \nm: myrecipes \ns: smitten kitchen"
+		recipe_source_input = gets.chomp
+		filtered_recipes_arr = get_recipes_by_source(recipes_db, recipe_source_input)
+	elsif user_filter == "v" || user_filter == "V"
+		filtered_recipes_arr = get_vegan_recipes(recipes_db)
+	elsif user_filter == "c" || user_filter == "C"
+		puts "Please enter maximum cook time in hours (input must be 0.75 or greater): "
+		cook_time = gets.chomp.to_i
+		filtered_recipes_arr = get_recipes_by_cook_time(recipes_db, cook_time)
+	elsif user_filter == "n" || user_filter == "N"
+		filtered_recipes_arr = get_all_recipes(recipes_db)
 	else
-		puts "There is only one recipe that satisfies your filters"
-		recipe_choice_input = filtered_recipes_arr.first
+		puts "Please ensure input is one of the following: t, s, v, c ,n"
 	end
-	recipe_choice_hash = recipes_db.execute("SELECT * FROM recipes WHERE id = ?", recipe_choice_input)
-	recipe_choice_str = recipe_choice_hash[0]["name"]
-	puts "Ingredient List for #{recipe_choice_str}: "
-	ingredients_hash = get_ingredients_for_recipe(recipes_db, recipe_choice_input)
+
+	if filtered_recipes_arr.empty?
+		puts "Please try another query, ensuring input is valid"
+	else
+		if filtered_recipes_arr.length > 1
+			puts "Please select a recipe from the list below with numerical input for which you would like to generate the ingredient list: "
+			filtered_recipes_arr.each do |recipe_id|
+				recipes_db.execute("SELECT * FROM recipes WHERE id = ?", recipe_id) do |recipe|
+					puts "#{recipe["id"]}: #{recipe["name"]}"
+				end
+			end
+			recipe_choice_input = gets.chomp
+		else
+			puts "There is only one recipe that satisfies your filters"
+			recipe_choice_input = filtered_recipes_arr.first
+		end
+		recipe_choice_hash = recipes_db.execute("SELECT * FROM recipes WHERE id = ?", recipe_choice_input)[0]
+		recipe_choice_str = recipe_choice_hash["name"]
+		puts "Ingredients for #{recipe_choice_str}: "
+
+		ingredients_hash = get_ingredients_for_recipe(recipes_db, recipe_choice_input)
+
+		shopping_list = shopping_list.merge(ingredients_hash) {|ingredient, qty1, qty2| qty1 + qty2}
+
+		shopping_list.each do |key, value|
+			puts "#{key}: #{value}"
+		end
+	end
+
+	puts "Would you like to add another recipe to your shopping list? (y/n)"
+	another_recipe = gets.chomp
 	
 end
 
-# ingredients_hash1 = get_ingredients_for_recipe(recipes_db, 1)
-# ingredients_hash3 = get_ingredients_for_recipe(recipes_db, 3)
+# SAMPLE CODE FOR ADDING HASHES
 
-# total_ingredients = ingredients_hash1[0].merge(ingredients_hash3[0]) {|ingredient, qty1, qty2| qty1 + qty2}
+# ingredients_hash1 = get_ingredients_for_recipe(recipes_db, 1)[0]
+# ingredients_hash3 = get_ingredients_for_recipe(recipes_db, 3)[0]
+
+# total_ingredients = ingredients_hash1.merge(ingredients_hash3) {|ingredient, qty1, qty2| qty1 + qty2}
 
 
 # puts "Chickpea Curry Ingredients: "
-# ingredients_hash1[0].each do |key, value|
+# ingredients_hash1.each do |key, value|
 # 		puts "#{key}: #{value}"
 # end
 
 # puts "Tomato and Sausage Risotto Ingredients: "
-# ingredients_hash3[0].each do |key, value|
+# ingredients_hash3.each do |key, value|
 # 		puts "#{key}: #{value}"
 # end
 
