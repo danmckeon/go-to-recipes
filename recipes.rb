@@ -89,6 +89,19 @@ def get_ingredients_for_recipe(recipes_db, recipe_choice_input)
 	ingredients_hash = recipes_db.execute("SELECT * FROM ingredients WHERE recipe_id = ?", recipe_choice_input)[0]
 end
 
+def clean_shopping_list(shopping_list)
+	clean_shopping_list = {}
+	shopping_list.each do |ingredient, qty|
+		if qty > 0 && ingredient.class == String
+			clean_ingredient = ingredient.split("_").join(" ").capitalize
+			clean_shopping_list[clean_ingredient] = qty
+		end
+	end
+	clean_shopping_list.delete("Id")
+	clean_shopping_list.delete("Recipe id")
+	clean_shopping_list
+end
+
 recipes_db = SQLite3::Database.new("recipes.db")
 recipes_db.results_as_hash = true
 
@@ -145,16 +158,19 @@ while another_recipe == "y" || another_recipe == "Y"
 		ingredients_hash = get_ingredients_for_recipe(recipes_db, recipe_choice_input)
 
 		shopping_list = shopping_list.merge(ingredients_hash) {|ingredient, qty1, qty2| qty1 + qty2}
-
-		shopping_list.each do |key, value|
-			puts "#{key}: #{value}"
-		end
+		
 	end
 
 	puts "Would you like to add another recipe to your shopping list? (y/n)"
 	another_recipe = gets.chomp
-	
+
 end
+
+shopping_list = clean_shopping_list(shopping_list)
+
+shopping_list.each do |key, value|
+	puts "#{key}: #{value}"
+end	
 
 # SAMPLE CODE FOR ADDING HASHES
 
