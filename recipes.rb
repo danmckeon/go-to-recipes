@@ -63,6 +63,21 @@ def get_vegan_recipes(recipes_db)
 	filtered_recipes_arr
 end
 
+def get_recipes_by_cook_time(recipes_db, cook_time)
+	filtered_recipes_arr = []
+	recipes_db.execute("SELECT * FROM recipes WHERE cook_time_hr < ?", cook_time) do |recipe|
+		filtered_recipes_arr << recipe["id"]
+	end
+
+	if filtered_recipes_arr.empty? 
+
+	end
+		
+	end
+	filtered_recipes_arr
+
+end
+
 def get_all_recipes(recipes_db)
 	filtered_recipes_arr = []
 	recipes_db.execute("SELECT * FROM recipes") do |recipe|
@@ -94,7 +109,9 @@ elsif user_filter == "s" || user_filter == "S"
 elsif user_filter == "v" || user_filter == "V"
 	filtered_recipes_arr = get_vegan_recipes(recipes_db)
 elsif user_filter == "c" || user_filter == "C"
-
+	puts "Please enter maximum cook time in hours (input must be 0.75 or greater): "
+	cook_time = gets.chomp.to_i
+	filtered_recipes_arr = get_recipes_by_cook_time(recipes_db, cook_time)
 elsif user_filter == "n" || user_filter == "N"
 	filtered_recipes_arr = get_all_recipes(recipes_db)
 else
