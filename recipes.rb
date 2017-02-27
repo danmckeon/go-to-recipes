@@ -117,10 +117,22 @@ else
 	puts "Please ensure input is one of the following: t, s, v, c ,n"
 end
 
-puts filtered_recipes_arr
-
-# puts "Enter the recipe number below for which you would like to generate an ingredient list: "
-
-
-
-# while valid_recipe_choice == false
+if filtered_recipes_arr.empty?
+	puts "Please try another query, ensuring input is valid"
+else
+	if filtered_recipes_arr.length > 1
+		puts "Please select a recipe from the list below with numerical input for which you would like to generate the ingredient list: "
+		filtered_recipes_arr.each do |recipe_id|
+			recipes_db.execute("SELECT * FROM recipes WHERE id = ?", recipe_id) do |recipe|
+				puts "#{recipe["id"]}: #{recipe["name"]}"
+			end
+		end
+		recipe_choice_input = gets.chomp
+	else
+		puts "There is only one recipe that satisfies your filters"
+		recipe_choice_input = filtered_recipes_arr.first
+	end
+	recipe_choice_hash = recipes_db.execute("SELECT * FROM recipes WHERE id = ?", recipe_choice_input)
+	recipe_choice_str = recipe_choice_hash[0]["name"]
+	puts "Ingredient List for #{recipe_choice_str}: "
+end
