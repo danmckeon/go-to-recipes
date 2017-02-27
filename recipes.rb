@@ -3,7 +3,7 @@
 # 2) Show recipes
 # 3) User selects recipes
 # 4) Show ingredients
-# * Additional features: Multiple recipes selection, add a recipe, edit a recipe, double recipe (and 50%, etc)
+# * Additional features: add a recipe, edit a recipe, delete recipe
 
 require 'sqlite3'
 
