@@ -105,11 +105,21 @@ end
 recipes_db = SQLite3::Database.new("recipes.db")
 recipes_db.results_as_hash = true
 
-filtered_recipes_arr = []
+
 shopping_list = {}
 another_recipe = "y"
 
+puts "*******************************************************************************"
+puts "                    Welcome to the go-to-recipe application                    "
+puts "*******************************************************************************"
+
+puts "\nEnter recipes you want to cook using filters that follow"
+puts "After you have finished entering recipes, your shopping list will be generated\n\n"
+
+
 while another_recipe == "y" || another_recipe == "Y"
+	filtered_recipes_arr = []
+
 
 	puts "Please choose a metric to filter recipes by: " 
 	puts "t: type (entree, dessert, etc.)\ns: source (website/blog)\nv: vegan recipes only\nc: cook time (you will enter max cook time next)\nn: no filter"
@@ -146,27 +156,36 @@ while another_recipe == "y" || another_recipe == "Y"
 					puts "#{recipe["id"]}: #{recipe["name"]}"
 				end
 			end
-			recipe_choice_input = gets.chomp
+			recipe_choice_input = gets.chomp.to_i
 		else
 			puts "There is only one recipe that satisfies your filters"
 			recipe_choice_input = filtered_recipes_arr.first
 		end
-		recipe_choice_hash = recipes_db.execute("SELECT * FROM recipes WHERE id = ?", recipe_choice_input)[0]
-		recipe_choice_str = recipe_choice_hash["name"]
-		puts "Ingredients for #{recipe_choice_str}: "
+		if filtered_recipes_arr.include? recipe_choice_input
+			recipe_choice_hash = recipes_db.execute("SELECT * FROM recipes WHERE id = ?", recipe_choice_input)[0]
+			recipe_choice_str = recipe_choice_hash["name"]
 
-		ingredients_hash = get_ingredients_for_recipe(recipes_db, recipe_choice_input)
+			ingredients_hash = get_ingredients_for_recipe(recipes_db, recipe_choice_input)
 
-		shopping_list = shopping_list.merge(ingredients_hash) {|ingredient, qty1, qty2| qty1 + qty2}
-		
+			shopping_list = shopping_list.merge(ingredients_hash) {|ingredient, qty1, qty2| qty1 + qty2}
+		else
+			puts "Sorry, that was an invalid recipe choice. Please try again."
+		end
 	end
 
-	puts "Would you like to add another recipe to your shopping list? (y/n)"
+	puts "\nWould you like to add another recipe to your shopping list? (y/n)\n"
 	another_recipe = gets.chomp
 
 end
 
 shopping_list = clean_shopping_list(shopping_list)
+
+puts "###############################################################################"
+puts "                              Final Shopping List                              "
+puts "###############################################################################"
+						                      
+
+
 
 shopping_list.each do |key, value|
 	puts "#{key}: #{value}"
