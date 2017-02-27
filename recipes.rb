@@ -31,6 +31,30 @@ def get_recipes_by_type(recipes_db, recipe_type_input)
 	filtered_recipes_arr
 end
 
+def get_recipes_by_source(recipes_db, recipe_source_input)
+	filtered_recipes_arr = []
+
+	if recipe_source_input == "a" || recipe_source_input == "A"
+		recipe_source_str = "AllRecipes"
+	elsif recipe_source_input == "f" || recipe_source_input == "F"
+		recipe_source_str = "Food Network"
+	elsif recipe_source_input == "52"
+		recipe_source_str = "Food52"
+	elsif recipe_source_input == "m" || recipe_source_input == "M"
+		recipe_source_str = "MyRecipes"
+	elsif recipe_source_input == "s" || recipe_source_input == "S"
+		recipe_source_str = "Smitten Kitchen"
+	else
+		recipe_source_str = ""
+		puts "Please ensure your recipe type input is one of the following: a, f, 52, m, s"
+	end
+
+	recipes_db.execute("SELECT * FROM recipes WHERE source=?", recipe_source_str) do |recipe|
+		filtered_recipes_arr << recipe["id"]
+	end
+	filtered_recipes_arr
+end
+
 def get_all_recipes(recipes_db)
 	filtered_recipes_arr = []
 	recipes_db.execute("SELECT * FROM recipes") do |recipe|
@@ -58,7 +82,7 @@ if user_filter == "t" || user_filter == "T"
 elsif user_filter == "s" || user_filter == "S"
 	puts "Please enter preferred source: \na: allrecipes \nf:food network \n52: food52 \nm: myrecipes \ns: smitten kitchen"
 	recipe_source_input = gets.chomp
-	filtered_recipes_arr = get_recipes_by_type(recipes_db, recipe_type_input)
+	filtered_recipes_arr = get_recipes_by_source(recipes_db, recipe_source_input)
 elsif user_filter == "v" || user_filter == "V"
 
 elsif user_filter == "c" || user_filter == "C"
